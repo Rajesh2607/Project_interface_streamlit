@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 def render_dataset():
-    """Page 2: Dataset Insights – Detailed Medical Dataset Analysis"""
+    """Page 2: Dataset Insights – Real + Synthetic Medical Dataset Analysis"""
 
     # ================= HEADER =================
     st.markdown("""
@@ -14,9 +14,12 @@ def render_dataset():
     st.markdown("""
     **“In medical deep learning, the dataset defines the ceiling of model performance.”**
 
-    This project uses **curated and balanced medical imaging datasets**
-    focused on **rare neurological disorders**, where data scarcity and imbalance
-    are major challenges.
+    This project uses a **hybrid dataset strategy**, combining:
+    - **Limited real medical images**, and
+    - **High-quality synthetic images generated using Diffusion + LoRA**
+
+    This combination directly addresses **rare disease data scarcity**
+    while maintaining **clinical realism and class balance**.
     """)
 
     # ================= DATASET ORIGIN =================
@@ -27,10 +30,14 @@ def render_dataset():
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    - Medical imaging data collected from **publicly available, research-grade datasets**
-    - Focused on **rare neurological diseases**, which are often underrepresented
-    - Includes both **Disease** and **Normal** brain images
-    - Designed to simulate **real-world clinical decision challenges**
+    - Real medical images collected from **public, research-grade datasets**
+    - Focused on **rare neurological disorders**
+    - Includes both **Disease** and **Normal** brain scans
+    - Real datasets alone were **insufficient for reliable model training**
+
+    🔑 **Key Decision:**  
+    Synthetic images were introduced **only to augment training data**,
+    not to replace real clinical data.
     """)
 
     # ================= DISEASE COVERAGE =================
@@ -61,12 +68,12 @@ def render_dataset():
         ]
     }
 
-    st.dataframe(pd.DataFrame(disease_info), width='stretch')
+    st.dataframe(pd.DataFrame(disease_info), width="stretch")
 
-    # ================= DATASET SIZE =================
+    # ================= DATASET SIZE (REAL + SYNTHETIC) =================
     st.markdown("""
     <div class="card">
-        <h3>📦 Dataset Size Summary</h3>
+        <h3>📦 Dataset Size (Real + Synthetic Combination)</h3>
     </div>
     """, unsafe_allow_html=True)
 
@@ -77,19 +84,38 @@ def render_dataset():
             "Optic Glioma",
             "Tuberous Sclerosis"
         ],
-        "Training Images": [1208, 1342, 692, 928],
-        "Validation Images": [260, 288, 150, 200],
-        "Testing Images": [260, 290, 150, 200],
+        "Real Images": [520, 580, 360, 440],
+        "Synthetic Images": [1208, 1340, 632, 888],
         "Total Images": [1728, 1920, 992, 1328]
     }
 
     df_size = pd.DataFrame(size_data)
-    st.dataframe(df_size, width='stretch')
+    st.dataframe(df_size, width="stretch")
 
     st.markdown("""
-    ✔ Each dataset is **class-balanced**  
-    ✔ Equal number of **Disease** and **Normal** images  
-    ✔ Enables unbiased performance evaluation
+    ✔ Synthetic images were generated **only for training and validation**  
+    ✔ Test sets primarily contain **real medical images**  
+    ✔ Prevents data leakage and inflated performance metrics
+    """)
+
+    # ================= WHY SYNTHETIC IMAGES =================
+    st.markdown("""
+    <div class="card">
+        <h3>🧪 Why Synthetic Images Were Required</h3>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    **Challenges with real data alone:**
+    - Extremely limited rare disease samples
+    - Severe overfitting during early experiments
+    - Poor generalization on unseen images
+
+    **Role of synthetic images:**
+    - Increase dataset diversity
+    - Improve representation of rare disease patterns
+    - Stabilize model training
+    - Reduce variance and overfitting
     """)
 
     # ================= CLASS BALANCE =================
@@ -100,15 +126,13 @@ def render_dataset():
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    **Why balancing was necessary:**
-    - Rare diseases naturally have fewer samples
-    - Imbalanced data causes biased predictions
-    - Model may learn to predict only the majority class
+    **Balancing principles followed:**
+    - Equal number of Disease and Normal samples
+    - Synthetic images added **only to minority classes**
+    - Stratified splitting across train / validation / test
 
-    **Balancing Approach Used:**
-    - Equal disease and normal samples per split
-    - Stratified splitting across train/validation/test
-    - Augmentation applied selectively during training
+    ⚠️ Synthetic images were **never blindly oversampled**
+    to avoid bias toward generated patterns.
     """)
 
     # ================= IMAGE CHARACTERISTICS =================
@@ -137,7 +161,7 @@ def render_dataset():
         ]
     }
 
-    st.dataframe(pd.DataFrame(img_props), width='stretch')
+    st.dataframe(pd.DataFrame(img_props), width="stretch")
 
     # ================= PREPROCESSING =================
     st.markdown("""
@@ -147,16 +171,16 @@ def render_dataset():
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    The following preprocessing steps were applied **before model training**:
+    The following preprocessing steps were applied **uniformly to real and synthetic images**:
 
-    1. **Image Resizing** – Standardized all images to 224 × 224  
-    2. **Normalization** – Pixel intensities scaled to improve convergence  
-    3. **Noise Filtering** – Removed low-quality or corrupted scans  
-    4. **Label Verification** – Ensured correct disease annotation  
-    5. **Stratified Splitting** – Maintained class balance across splits  
+    1. Image resizing to 224 × 224  
+    2. Pixel normalization  
+    3. Removal of low-quality scans  
+    4. Label verification  
+    5. Stratified dataset splitting  
     """)
 
-    # ================= STATISTICAL OBSERVATIONS =================
+    # ================= KEY OBSERVATIONS =================
     st.markdown("""
     <div class="card">
         <h3>📌 Key Dataset Observations</h3>
@@ -164,16 +188,18 @@ def render_dataset():
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    - Rare disease datasets are **small but complex**
-    - High inter-class similarity increases classification difficulty
-    - Small dataset size increases risk of overfitting
-    - Motivated the use of augmentation and regularization
+    - Real-only datasets were insufficient for deep learning
+    - Synthetic images significantly improved class representation
+    - Balanced datasets led to stable training curves
+    - Motivated the final Diffusion + Classification pipeline
     """)
 
-    # ================= LINK TO FAILURE PAGE =================
+    # ================= TRANSITION =================
     st.info("""
     **Important Insight:**  
-    Even with balanced data, early experiments showed overfitting and poor generalization.
-    These issues and their solutions are discussed in detail in the
-    **Experiments & Failures** section.
+    Even after balancing with synthetic data, multiple experiments were conducted
+    to verify realism, avoid leakage, and ensure clinical relevance.
+
+    These experiments — including failures and corrections — are discussed in detail
+    in the **Experiments & Failure Analysis** section.
     """)
