@@ -1,4 +1,6 @@
 import streamlit as st
+import os
+from pathlib import Path
 
 def render_architecture():
     """Page 3: System Architecture – DiffusionGenMed Pipeline"""
@@ -9,20 +11,28 @@ def render_architecture():
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    **“Prediction is not a single step.  
-    It is the result of data engineering, generative modeling, and deep learning.”**
+    # Get the project root directory
+    project_root = Path(__file__).parent.parent
+    svg_file_path = project_root / "System Architecture.drawio (1).svg"
+    
+    # Display SVG Architecture Diagram
+    if svg_file_path.exists():
+        with open(svg_file_path, "r", encoding="utf-8") as f:
+            svg_content = f.read()
+        
+        # Display SVG in container
+        html_content = f"""
+        <div style="background: white; border: 2px solid rgba(0, 153, 255, 0.3); border-radius: 16px; padding: 24px; margin: 20px 0;">
+            <div style="width: 100%; overflow: auto; border: 1px solid #e2e8f0; border-radius: 12px; background: white; max-height: 600px; display: flex; justify-content: center; align-items: flex-start;">
+                {svg_content}
+            </div>
+        </div>
+        """
+        st.markdown(html_content, unsafe_allow_html=True)
+    else:
+        st.error(f"❌ Architecture diagram not found at: {svg_file_path}")
 
-    This architecture explains how **synthetic medical image generation**
-    is integrated with **rare disease classification**.
-    """)
-
-    # ================= PIPELINE =================
-    st.markdown("""
-    <div class="card">
-        <h3>📋 End-to-End Processing Pipeline</h3>
-    </div>
-    """, unsafe_allow_html=True)
+    st.divider()
 
     # CSS for pipeline
     st.markdown("""
@@ -152,102 +162,3 @@ def render_architecture():
     </div>
     """, unsafe_allow_html=True)
 
-    # ================= MODULE DETAILS =================
-    st.markdown("""
-    <div class="card">
-        <h3>🧠 Core System Modules</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("""
-        **Synthetic Image Generation Module**
-        - Uses Stable Diffusion
-        - Learns distribution of medical images
-        - Generates realistic rare disease samples
-        - Preserves anatomical structure
-        """)
-
-    with col2:
-        st.markdown("""
-        **Disease Classification Module**
-        - CNN-based models (ResNet / EfficientNet)
-        - Vision Transformer for global context
-        - Outputs disease probability score
-        """)
-
-    # ================= DATA FLOW =================
-    st.markdown("""
-    <div class="card">
-        <h3>📊 Data Flow Explanation</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    | Stage | Description |
-    |------|-------------|
-    | Data Source | Collects real medical images |
-    | Preprocessing | Converts & standardizes images |
-    | Diffusion Model | Generates synthetic images |
-    | Augmentation | Combines real + synthetic data |
-    | Classifier | Learns disease-specific patterns |
-    | Evaluation | Measures accuracy & realism |
-    | Output | Deployable model & dataset |
-    """)
-
-    # ================= FEATURE LEARNING =================
-    st.markdown("""
-    <div class="card">
-        <h3>🎯 Learning & Generalization Strategy</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    1. **Diffusion Model Learning**
-       - Learns medical image structure
-       - Generates diverse disease variations
-
-    2. **Augmented Training**
-       - Reduces class imbalance
-       - Improves generalization
-
-    3. **Classifier Learning**
-       - CNN captures local pathology
-       - ViT captures global context
-
-    4. **Evaluation Feedback**
-       - Confirms synthetic data usefulness
-    """)
-
-    # ================= MODES =================
-    st.markdown("""
-    <div class="card">
-        <h3>🔁 Dual Operating Modes</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    **Mode 1: Synthetic Data Generation**
-    - Input: Text prompts / disease conditions
-    - Output: Synthetic medical images
-    - Used for research and data augmentation
-
-    **Mode 2: Disease Classification**
-    - Input: Real medical image
-    - Output: Disease probability & diagnosis
-    - Used as clinical decision support
-    """)
-
-    # ================= JUSTIFICATION =================
-    st.info("""
-    **Why This Architecture?**
-
-    - Rare diseases suffer from data scarcity
-    - Diffusion models generate high-quality medical images
-    - Augmented data improves classifier robustness
-    - Dual-mode design supports both research and diagnosis
-
-    This architecture transforms **data scarcity into a solvable problem**.
-    """)
